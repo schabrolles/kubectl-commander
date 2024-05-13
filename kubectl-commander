@@ -1,0 +1,266 @@
+#!/bin/bash
+#set -x
+
+# User customizable Variable
+k8cmd=kubectl
+
+# Define usage function
+usage() {
+    echo "
+List all kube objects 
+
+Usage: $k8cmd fzf <type> [OPTIONS]
+
+OPTIONS:
+  -A	all namespaces
+
+  -n, --namespace	<namespace>
+		search object in a specifique namespace
+
+	-q, --query	<fzf query>
+
+	-o wide
+
+	-D, --debug
+		debug mode	  
+
+  -y, --yq	<yq path>		
+		use this yq filter on YAML preview (.metadata.labels, .status ...)
+
+	-e, --exec kubectl|oc <action>
+	  generate a command (oc get, oc delete) with the result of fzf selection.
+
+	-q, --query <fzf query>
+		start fzf with this query
+"
+    exit 1
+}
+
+# Set Variable
+NAME_FIELD=1
+GET_NS=0
+RETRUN=" $TYPE {+$NAME_FIELD}"
+PREVIEW_WINDOW=hidden,wrap
+PREVIEW=None
+
+# if first arg is empty or start with "-" (like an aoption).
+# This mean it is not an kube object type (like pod,pvc,)
+# then start fzf to select the right type
+if [[ -z "$1" || $1 == -* ]]; then
+  export TYPE=$(oc api-resources -o name | fzf -e --ansi --reverse +s -m \
+	  --header=K8s_OBJ_TYPE \
+		--height 15 \
+		--info inline \
+		--bind="ctrl-a:select-all" \
+		--bind="ctrl-d:deselect-all" \
+		| awk 'NR==1{TYPE=$1}; NR>1{TYPE=TYPE","$1} END{print TYPE}')
+else
+	export TYPE=$1
+	shift
+fi
+
+# check if we get multiple object type (like "get depoy,pod")
+export MULTI_TYPE=0
+if [ $(echo $TYPE | awk -F, '{print NF}') -gt 1 ]; then
+	MULTI_TYPE=1
+fi 
+
+rm -f /tmp/yq 
+
+#####################
+## Parsing options ##
+#####################
+args=$(getopt ADhn:y:e:o:q: $*)
+[ $? -eq 0 ] || { 
+    echo "Incorrect options provided"
+    exit 1
+}
+set -- $args
+
+while true; do
+	case "$1" in
+
+		-A)
+			ALL_NS=true
+			PARAMETERS="$PARAMETERS -A"
+			POSITION=$($k8cmd get $TYPE $PARAMETERS | awk 'BEGIN{NS=0;NAME=0} NR==1{ for (i=1; i<=NF; i++) { if ($i == "NAME") NAME=i ; if ($i == "NAMESPACE") NS=i }} END {print NAME" "NS}')
+			NAME_FIELD=$(echo $POSITION | awk '{print $1}')
+			GET_NS=$(echo $POSITION | awk '{print $2}')
+			PREVIEW_PARAMETERS="$PREVIEW_PARAMETERS -n {$GET_NS}"
+			RETRUN=" -n {$GET_NS} $TYPE {+$NAME_FIELD}"
+			shift
+			;;
+
+		-n)
+			shift
+			NS=$1
+			PARAMETERS="$PARAMETERS -n $NS"
+			PREVIEW_PARAMETERS="$PREVIEW_PARAMETERS -n $NS"
+			RETRUN=" -n $NS $TYPE {+$NAME_FIELD}"
+			shift
+			;;
+
+		-o)
+			shift
+			PARAMETERS="$PARAMETERS -o $1"
+			if [ "$1" == wide ]; then
+				POSITION=$($k8cmd get $TYPE $PARAMETERS | awk 'BEGIN{NS=0;NAME=0} NR==1{ for (i=1; i<=NF; i++) { if ($i == "NAME") NAME=i ; if ($i == "NAMESPACE") NS=i }} END {print NAME" "NS}')
+				NAME_FIELD=$(echo $POSITION | awk '{print $1}')
+				GET_NS=$(echo $POSITION | awk '{print $2}')
+			fi
+			shift
+			;;
+
+		-y|--yq)
+			shift
+			YQ=$1
+			PREVIEW_WINDOW=right
+			shift
+			;;
+
+		-e|--exec)
+			shift
+			EXEC_CMD=$1
+			shift
+			while [[ "$1" == "--" ]]; do
+				shift
+				EXEC_CMD="$EXEC_CMD $1"
+				shift
+			done
+			;;
+
+		-h|--help)
+			shift
+			usage
+			;;
+
+		-q|--query)
+			shift
+			FZF_EXTRA_OPTIONS="$FZF_EXTRA_OPTIONS -q $1"
+			shift
+			;;
+
+		-D|--debug) 
+			set -x
+			;;
+
+		--)
+			shift; break
+			;;
+
+    * )
+			break ;;
+	esac
+done
+
+#########
+## FZF ##
+#########
+
+export FZF_DEFAULT_OPTS='--color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#87afaf,fg:#F8F8F2,header:#5fd7ff,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672,label:#87ff00'
+export FZF_DEFAULT_COMMAND="$k8cmd get $TYPE $PARAMETERS"
+PRINT_YAML="[[ -f /tmp/yq ]] && YQ=\$(cat /tmp/yq); $k8cmd get $([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE) {$NAME_FIELD} -o yaml $PREVIEW_PARAMETERS"
+PREVIEW_LABEL_YAML="[[ -f /tmp/yq ]] && echo [ YAML - yq \$(cat /tmp/yq) ] || echo [ YAML - yq .]"
+PRINT_EVENTS="$k8cmd events $PREVIEW_PARAMETERS -w --for=$([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE/){$NAME_FIELD}"
+PRINT_LOGS="$k8cmd logs -f {$NAME_FIELD} $PREVIEW_PARAMETERS --all-containers"
+#PRINT_LOGS="$k8cmd stern --color always $PREVIEW_PARAMETERS {$NAME_FIELD}"
+EDIT="$k8cmd edit $([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE) $PREVIEW_PARAMETERS {$NAME_FIELD} >/dev/tty"
+DELETE="$k8cmd delete $PREVIEW_PARAMETERS $([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE) {+$NAME_FIELD} > /dev/tty"
+
+# Use krew plugin modify-secret if installed
+if which kubectl-modify_secret >/dev/null 2>&1; then
+	EDIT_SECRET="$k8cmd modify-secret $PREVIEW_PARAMETERS {$NAME_FIELD} >/dev/tty"
+else
+	EDIT_SECRET=$EDIT
+fi
+
+# Use krew plugin iexec if installes
+if which kubectl-iexec > /dev/null 2>&1; then
+	EXEC_IN_POD="echo \"\nConnecting to {$NAME_FIELD} ...\n\" >/dev/tty; $k8cmd iexec $PREVIEW_PARAMETERS {$NAME_FIELD} > /dev/tty"
+else
+  EXEC_IN_POD="echo \"\nConnecting to {$NAME_FIELD} ...\n\" >/dev/tty; $k8cmd rsh $PREVIEW_PARAMETERS {$NAME_FIELD} > /dev/tty"
+fi
+
+HELP="
+* [ Kube-Commander v0.3 ] *
+===========================
+
+For optimal experience, be sure to have the following binaries installed on your machine:
+- fzf: https://github.com/junegunn/fzf/releases 
+- yq:  https://github.com/mikefarah/yq/releases
+
+krew optional plugin:
+- modify-secret : https://github.com/rajatjindal/kubectl-modify-secret 
+
+## Key Bindings:
+
+|---------------|--------------------------------------------------------------|
+| key Binding   | Actions                                                      |
+|---------------|--------------------------------------------------------------|
+| ctrl-h        | print this help menu                                         |
+|---------------|--------------------------------------------------------------|
+| ctrl-q        | Quit                                                         |
+|---------------|--------------------------------------------------------------|
+| ctrl-r        | Reload                                                       |
+|---------------|--------------------------------------------------------------|
+| ctrl-y        | preview YAML                                                 |
+|               | * press this key several time to cycle between preview mode  |                 
+|               |   (right,top,hidden)                                         |
+|               | * press 'Enter' to add/change the yq query (default is '.')  |
+|---------------|--------------------------------------------------------------|
+| ctrl-v        | preview and follow Events (for objects which have events)    |
+|               | * press this key several time to cycle between preview mode  |
+|               |   (top 50%,top 80%,hidden)                                   |
+|               | * press 'Enter' to follow the events in full screen          |
+|---------------|--------------------------------------------------------------|
+| ctrl-l        | preview and follow Logs (for pods)                           |
+|               | * press this key several time to cycle between preview mode  |
+|               |   (top 50%,top 80%,hidden)                                   |
+|               | * press 'Enter' to follow the events in full screen          |
+|---------------|--------------------------------------------------------------|
+| ctrl-x        | Enter into container (for pods, deployments)                 |
+|---------------|--------------------------------------------------------------|
+| ctrl-d        | /!\\\\\ delete object /!\\\\\ (works with multi selection)           |
+|---------------|--------------------------------------------------------------|
+| ctrl-e        | edit object                                                  |
+|---------------|--------------------------------------------------------------|
+| ctrl-s        | edit secret (decrypt/encrypt)                                |
+|               | -> (need 'modify-secret' krew plugin)                        |
+|---------------|--------------------------------------------------------------|
+| ctrl-w        | toggle watch mode (automatic refresh 2s)                     |
+|---------------|--------------------------------------------------------------|
+| alt-l         | toggle wrap line in preview (default off)                    |
+|---------------|--------------------------------------------------------------|
+| TAB           | select items                                                 |
+| ctrl-a        | select all items                                             |
+| ctrl-alt-a    | deselect all items                                           |
+|---------------|--------------------------------------------------------------|
+" 
+
+export WIDE=0
+fzf -m -e --track --ansi +s $FZF_EXTRA_OPTIONS \
+  --border \
+	--border-label=" ctrl-h(help) / context:[ $(kubectl config current-context | sed 's/-context$//') ] " \
+	--border-label-pos=bottom \
+	--color "label:#A6E22E:bold,preview-label:bright-yellow:bold" \
+  --header-lines=1 \
+	--info=inline \
+	--pointer='▶' \
+	--no-separator \
+	--prompt "$TYPE > " \
+	--bind="ctrl-h:change-preview(print \"$HELP\")+change-preview-window(right,<80(up)|hidden)+change-preview-label([ Help ])" \
+	--bind="ctrl-y:change-preview($PRINT_YAML | yq -C \${YQ:-.})+change-preview-window(right,wrap,<80(up,wrap)|up,wrap|hidden)+transform-preview-label:$PREVIEW_LABEL_YAML" \
+	--bind="ctrl-v:change-preview($PRINT_EVENTS)+change-preview-window(up,follow|up,80%,border-bottom,follow|hidden)+change-preview-label([ Events ])" \
+	--bind="ctrl-l:change-preview($PRINT_LOGS --tail=5000)+change-preview-window(up,follow|up,80%,border-bottom,follow|hidden)+change-preview-label([ Logs ])" \
+	--bind="ctrl-x:execute($EXEC_IN_POD)" \
+	--bind="alt-l:toggle-preview-wrap" \
+	--bind="ctrl-d:execute(echo; for item in {+$NAME_FIELD}; do echo \$item; done; echo \"\n * /!\ delete selected items (y/N) ? *\"; read ANSW; [[ \$ANSW == \"y\" ]] && $DELETE)" \
+	--bind="ctrl-e:execute($EDIT)" \
+	--bind="ctrl-s:execute($EDIT_SECRET)" \
+	--bind="ctrl-a:select-all" \
+	--bind="ctrl-alt-a:deselect-all" \
+	--bind="ctrl-w:transform:[[ ! \$FZF_PROMPT =~ (watch) ]] && echo \"change-prompt((watch) $TYPE > )+rebind(load)+reload%\$(echo \$FZF_DEFAULT_COMMAND)%\" || echo \"change-prompt($TYPE > )+unbind(load)\"" \
+	--bind="ctrl-r:reload%\$(echo \$FZF_DEFAULT_COMMAND)%+refresh-preview" \
+	--bind="load:reload-sync%\$(echo \$FZF_DEFAULT_COMMAND); sleep 2%" \
+	--bind="start:unbind(load)" \
+	--bind="Enter:execute([[ \"\$FZF_PREVIEW_LABEL\" == *Logs* ]] && $PRINT_LOGS >/dev/tty; [[ \"\$FZF_PREVIEW_LABEL\" == *Events* ]] && $PRINT_EVENTS >/dev/tty; [[ \"\$FZF_PREVIEW_LABEL\" == *YAML* ]] && echo \"\nenter your yq query:\" && read YQ && echo \$YQ > /tmp/yq )+refresh-preview+transform-preview-label:if [[ \"\$FZF_PREVIEW_LABEL\" == *YAML* ]]; then echo [ YAML - yq \$(cat /tmp/yq) ]; else echo \$FZF_PREVIEW_LABEL ; fi"
