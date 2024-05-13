@@ -4,9 +4,11 @@ This script uses the `fzf` command-line tool to create an interactive menu for s
 
 When you run this script, it will create an interactive menu that allows you to select one of these options for each object in your Kubernetes cluster. The selected option will be executed on the current object, and any relevant output (e.g., logs or events) will be displayed in a new terminal window.
 
-Conveniant like a gui, quick and responsive like a cli ;)
-<img width="1447" alt="image" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/59a7f8ae-130c-47e6-81cd-41cff6d45848">
-<img width="1451" alt="image" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/9d34a1f1-971a-4013-8590-86c90eadb686">
+Conveniant like a gui, quick and responsive like a cli ;)  
+
+
+<img width="725" alt="pods_yaml" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/59a7f8ae-130c-47e6-81cd-41cff6d45848">
+<img width="725" alt="pods_log" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/9d34a1f1-971a-4013-8590-86c90eadb686">
 
 ## Key Bindings:
 
