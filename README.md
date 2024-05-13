@@ -20,7 +20,7 @@ Conveniant like a gui, quick and responsive like a cli ;)
 | ctrl-v          | preview and follow Events (for objects which have events)<br>* press this key several time to cycle between preview mode (top 50%,top 80%,hidden)<br>* press 'Enter' to follow the events in full screen |
 | ctrl-l          | preview and follow Logs (for pods)<br>* press this key several time to cycle between preview mode (top 50%,top 80%,hidden)<br>* press 'Enter' to follow the events in full screen            |
 | ctrl-x          | Enter into container (for pods, deployments)                   |
-| ctrl-d          | /!\\\\\ delete object /!\\\\\ (works with multi selection)     |
+| ctrl-d          | /!\ delete object /!\ (works with multi selection)             |
 | ctrl-e          | edit object                                                    |
 | ctrl-s          | edit secret (decrypt/encrypt)<br>-> (need 'modify-secret' krew plugin)|
 | ctrl-w          | toggle watch mode (automatic refresh 2s)                       |
