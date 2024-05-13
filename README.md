@@ -29,10 +29,10 @@ Conveniant like a gui, quick and responsive like a cli ;)
 ## Screenshot
 
 Navigate through pods and displaying YAML instantaneously on the right. 
-<img width="725" alt="pods_yaml" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/59a7f8ae-130c-47e6-81cd-41cff6d45848">
+<img width="800" alt="pods_yaml" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/59a7f8ae-130c-47e6-81cd-41cff6d45848">
 
 Quckly display pods Logs (in follow mode).
-<img width="725" alt="pods_log" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/9d34a1f1-971a-4013-8590-86c90eadb686">
+<img width="800" alt="pods_log" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/9d34a1f1-971a-4013-8590-86c90eadb686">
 
 
 ## Installation
