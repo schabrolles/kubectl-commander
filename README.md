@@ -34,6 +34,13 @@ Navigate through pods and displaying YAML instantaneously on the right.
 Quckly display pods Logs (in follow mode).
 <img width="800" alt="pods_log" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/9d34a1f1-971a-4013-8590-86c90eadb686">
 
+kube-commander in action:
+[![asciicast](https://asciinema.org/a/JRkXUSCQmHRSuLfjAnla47o1p.svg)](https://asciinema.org/a/JRkXUSCQmHRSuLfjAnla47o1p)
+  - filter pods
+  - [ctrl-y]: view yaml
+  - [ctrl-l]: view logs
+  - [ctrl-d]: delete pods
+  - [ctrl-w]: wtach mode
 
 ## Installation
 

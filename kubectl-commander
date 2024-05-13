@@ -1,7 +1,6 @@
 #!/bin/bash
 #set -x
 
-# User customizable Variable
 k8cmd=kubectl
 
 # Define usage function
@@ -35,6 +34,11 @@ OPTIONS:
 "
     exit 1
 }
+
+# detect if current cluster is openshift
+if $k8cmd get ns -o json | grep -qi openshift; then
+  k8cmd=oc
+fi
 
 # Set Variable
 NAME_FIELD=1
