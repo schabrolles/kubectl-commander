@@ -13,6 +13,9 @@ Conveniant like a gui, quick and responsive like a cli ;)
 | ctrl-h          | print this help menu                                           |
 | ctrl-q          | Quit                                                           |
 | ctrl-r          | Reload                                                         |
+| TAB             | select items                                                   |
+| ctrl-a          | select all items                                               |
+| ctrl-alt-a      | deselect all items                                             |
 | ctrl-y          | preview YAML.<br>* press this key several time to cycle between preview mode (right,top,hidden)<br>* press 'Enter' to add/change the yq query (default is '.') .           |
 | ctrl-v          | preview and follow Events (for objects which have events)<br>* press this key several time to cycle between preview mode (top 50%,top 80%,hidden)<br>* press 'Enter' to follow the events in full screen |
 | ctrl-l          | preview and follow Logs (for pods)<br>* press this key several time to cycle between preview mode (top 50%,top 80%,hidden)<br>* press 'Enter' to follow the events in full screen            |
@@ -22,9 +25,7 @@ Conveniant like a gui, quick and responsive like a cli ;)
 | ctrl-s          | edit secret (decrypt/encrypt)<br>-> (need 'modify-secret' krew plugin)|
 | ctrl-w          | toggle watch mode (automatic refresh 2s)                       |
 | alt-l           | toggle wrap line in preview (default off)                      |
-| TAB             | select items                                                   |
-| ctrl-a          | select all items                                               |
-| ctrl-alt-a      | deselect all items                                             |
+
 
 ## Installation
 
@@ -40,4 +41,6 @@ echo $PATH
 cp kubectl-commander /usr/local/bin
 chmod +x /usr/local/bin/kubectl-commander
 ```
+
+## Usage
 
