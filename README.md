@@ -50,5 +50,44 @@ cp kubectl-commander /usr/local/bin
 chmod +x /usr/local/bin/kubectl-commander
 ```
 
+- check if the plugin is available with your kubectl
+```
+kubectl plugin
+```
+
+- (optional) use a symbolic link or alias if you want a shorter name
+```
+ln -s /usr/local/bin/kubectl-commander /usr/local/bin/kubectl-com
+```
+
+### Prerequistes
+
+To enjoy kube commander, please install the 2 following product:
+- fzf: https://github.com/junegunn/fzf/releases
+- yq:  https://github.com/mikefarah/yq/releases
+
+Uncompress and copy the fzf and yq binaries into your PATH DIR
+
 ## Usage
 
+* basic 
+```
+kubectl commander pods
+```
+this will open kubectl commander to list all the pods in the current namespace.
+
+* All namespaces
+```
+kubectl commander pods -A
+```
+
+* multiple objects 
+```
+kubectl commander secret,configmap -A
+```
+
+* Don't remember the object name ?
+```
+kubectl commander -a
+```
+=> This will open an fzf list of all the objects installed on your cluster. Enter a fzf query, select the objects you want (with TAB) then press Enter. 
