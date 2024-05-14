@@ -1,10 +1,19 @@
 # kubectl-commander
 
-This script uses the `fzf` command-line tool to create an interactive menu for selecting and manipulating Kubernetes objects.
+**Unlock Insights into Your Kubernetes Cluster**
+Are you tired of digging through logs and events to troubleshoot issues in your Kubernetes cluster? This powerful plugin gives you the tools you need to gain instant insights and control over your objects.
 
-When you run this script, it will create an interactive menu that allows you to select one of these options for each object in your Kubernetes cluster. The selected option will be executed on the current object, and any relevant output (e.g., logs or events) will be displayed in a new terminal window.
+Supercharged by [fzf](https://github.com/junegunn/fzf),  it creates an intuitive menu that lets you navigate and dig your kubernetes cluster, select from a range of options for each object - whether it's viewing logs, checking events, or executing custom commands - and watch as the results are displayed into terminal window.
 
-Conveniant like a gui, quick and responsive like a cli ;)  
+Gain instant visibility into your cluster's performance and behavior with minimal effort. No more tedious searching through logs and events; with this plugin, you'll have everything at your fingertips.
+
+Conveniant like a gui, quick and responsive like a cli ;) 
+
+## Screenshots
+
+Navigate through pods while displaying YAML.|Quckly display pods Logs (in follow mode).
+:-----------------------:|:-----------------------:
+<img width="800" alt="pods_yaml" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/59a7f8ae-130c-47e6-81cd-41cff6d45848"> | <img width="800" alt="pods_log" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/9d34a1f1-971a-4013-8590-86c90eadb686">
 
 ## Key Bindings:
 
@@ -25,14 +34,6 @@ Conveniant like a gui, quick and responsive like a cli ;)
 | ctrl-s          | edit secret (decrypt/encrypt)<br>-> (need 'modify-secret' krew plugin)|
 | ctrl-w          | toggle watch mode (automatic refresh 2s)                       |
 | alt-l           | toggle wrap line in preview (default off)                      |
-
-## Screenshot
-
-Navigate through pods and displaying YAML instantaneously on the right. 
-<img width="800" alt="pods_yaml" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/59a7f8ae-130c-47e6-81cd-41cff6d45848">
-
-Quckly display pods Logs (in follow mode).
-<img width="800" alt="pods_log" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/9d34a1f1-971a-4013-8590-86c90eadb686">
 
 kube-commander in action:
 [![asciicast](https://asciinema.org/a/JRkXUSCQmHRSuLfjAnla47o1p.svg)](https://asciinema.org/a/JRkXUSCQmHRSuLfjAnla47o1p)
