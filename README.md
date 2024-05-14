@@ -3,7 +3,7 @@
 **Unlock Insights into Your Kubernetes Cluster**
 Are you tired of digging through logs and events to troubleshoot issues in your Kubernetes cluster? This powerful plugin gives you the tools you need to gain instant insights and control over your objects.
 
-Supercharged by [fzf](https://github.com/junegunn/fzf),  it creates an intuitive menu that lets you navigate and dig your kubernetes cluster, select from a range of options for each object - whether it's viewing logs, checking events, or executing custom commands - and watch as the results are displayed into terminal window.
+Supercharged by [fzf](https://github.com/junegunn/fzf), it creates an intuitive menu that lets you navigate and dig your kubernetes cluster, select from a range of options for each object - whether it's viewing logs, checking events, or executing custom commands - and watch as the results are displayed into terminal window.
 
 Gain instant visibility into your cluster's performance and behavior with minimal effort. No more tedious searching through logs and events; with this plugin, you'll have everything at your fingertips.
 

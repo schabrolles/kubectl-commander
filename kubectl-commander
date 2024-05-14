@@ -186,8 +186,8 @@ else
 fi
 
 HELP="
-* [ Kube-Commander v0.3 ] *
-===========================
+* [ Kube-Commander v0.4.0 ] *
+=============================
 
 For optimal experience, be sure to have the following binaries installed on your machine:
 - fzf: https://github.com/junegunn/fzf/releases 
