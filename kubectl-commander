@@ -20,14 +20,8 @@ OPTIONS:
 
 	-o wide
 
-	-D, --debug
-		debug mode	  
-
   -y, --yq	<yq path>		
 		use this yq filter on YAML preview (.metadata.labels, .status ...)
-
-	-e, --exec kubectl|oc <action>
-	  generate a command (oc get, oc delete) with the result of fzf selection.
 
 	-q, --query <fzf query>
 		start fzf with this query
@@ -51,7 +45,7 @@ PREVIEW=None
 # This mean it is not an kube object type (like pod,pvc,)
 # then start fzf to select the right type
 if [[ -z "$1" || $1 == -* ]]; then
-  export TYPE=$(oc api-resources -o name | fzf -e --ansi --reverse +s -m \
+  export TYPE=$($k8cmd api-resources -o name | fzf -e --ansi --reverse +s -m \
 	  --header=K8s_OBJ_TYPE \
 		--height 15 \
 		--info inline \
@@ -122,17 +116,6 @@ while true; do
 			shift
 			;;
 
-		-e|--exec)
-			shift
-			EXEC_CMD=$1
-			shift
-			while [[ "$1" == "--" ]]; do
-				shift
-				EXEC_CMD="$EXEC_CMD $1"
-				shift
-			done
-			;;
-
 		-h|--help)
 			shift
 			usage
@@ -142,10 +125,6 @@ while true; do
 			shift
 			FZF_EXTRA_OPTIONS="$FZF_EXTRA_OPTIONS -q $1"
 			shift
-			;;
-
-		-D|--debug) 
-			set -x
 			;;
 
 		--)
