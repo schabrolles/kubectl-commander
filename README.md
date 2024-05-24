@@ -20,8 +20,8 @@ Navigate through pods while displaying YAML.|Quckly display pods Logs (in follow
 ### Prerequisites
 
 #### krew 
-Note: You will need git to install the krew plugin.
-the outdated plugin is installed using the krew plugin manager for Kubernetes CLI. Installation instructions for krew can be found here.
+Note: You will need `git` to install the `krew` plugin.
+the `commander` plugin is installed using the krew plugin manager for Kubernetes CLI. Installation instructions for krew can be found [here](https://krew.sigs.k8s.io/docs/user-guide/setup/install/).
 
 #### Other needed software
 To enjoy kube commander, please install the 2 following product:
