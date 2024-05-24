@@ -15,6 +15,53 @@ Navigate through pods while displaying YAML.|Quckly display pods Logs (in follow
 :-----------------------:|:-----------------------:
 <img width="800" alt="pods_yaml" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/59a7f8ae-130c-47e6-81cd-41cff6d45848"> | <img width="800" alt="pods_log" src="https://github.com/schabrolles/kubectl-commander/assets/19491077/9d34a1f1-971a-4013-8590-86c90eadb686">
 
+## Quickstart
+
+### Prerequisites
+
+#### krew 
+Note: You will need git to install the krew plugin.
+the outdated plugin is installed using the krew plugin manager for Kubernetes CLI. Installation instructions for krew can be found here.
+
+#### Other needed software
+To enjoy kube commander, please install the 2 following product:
+- fzf: https://github.com/junegunn/fzf/releases
+- yq:  https://github.com/mikefarah/yq/releases
+
+Uncompress and copy the fzf and yq binaries into your PATH DIR
+
+### Installation
+
+After installing & configuring the k8s krew plugin, install outdated using the following command:
+
+```
+kubectl krew install commander
+```
+
+## Usage
+
+* basic 
+```
+kubectl commander pods
+```
+this will open kubectl commander to list all the pods in the current namespace.
+
+* All namespaces
+```
+kubectl commander pods -A
+```
+
+* multiple objects 
+```
+kubectl commander secret,configmap -A
+```
+
+* Don't remember the object name ?
+```
+kubectl commander -a
+```
+=> This will open an fzf list of all the objects installed on your cluster. Enter a fzf query, select the objects you want (with TAB) then press Enter. 
+
 ## Key Bindings:
 
 | key Binding     | Actions                                                        |
@@ -43,59 +90,3 @@ kube-commander in action:
   - [ctrl-d]: delete pods
   - [ctrl-w]: wtach mode
 
-## Installation
-
-Put the kubctl-commander into a directory that is part of your PATH environement variable. (like /usr/local/bin).
-
-- check the directries part of your PATH
-```
-echo $PATH
-```
-
-- Copy the plugin into the chosen directory and set the execute permission on it.
-```
-cp kubectl-commander /usr/local/bin
-chmod +x /usr/local/bin/kubectl-commander
-```
-
-- check if the plugin is available with your kubectl
-```
-kubectl plugin
-```
-
-- (optional) use a symbolic link or alias if you want a shorter name
-```
-ln -s /usr/local/bin/kubectl-commander /usr/local/bin/kubectl-com
-```
-
-### Prerequistes
-
-To enjoy kube commander, please install the 2 following product:
-- fzf: https://github.com/junegunn/fzf/releases
-- yq:  https://github.com/mikefarah/yq/releases
-
-Uncompress and copy the fzf and yq binaries into your PATH DIR
-
-## Usage
-
-* basic 
-```
-kubectl commander pods
-```
-this will open kubectl commander to list all the pods in the current namespace.
-
-* All namespaces
-```
-kubectl commander pods -A
-```
-
-* multiple objects 
-```
-kubectl commander secret,configmap -A
-```
-
-* Don't remember the object name ?
-```
-kubectl commander -a
-```
-=> This will open an fzf list of all the objects installed on your cluster. Enter a fzf query, select the objects you want (with TAB) then press Enter. 
