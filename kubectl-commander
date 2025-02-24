@@ -34,6 +34,13 @@ if $k8cmd get ns -o json | grep -qi openshift; then
   k8cmd=oc
 fi
 
+# detect if kubecolor is installed
+if which kubecolor > /dev/null 2>&1 ; then
+	export KUBECTL_COMMAND=$k8cmd
+	k8cmd="kubecolor --force-colors"
+	#k8cmd="kubecolor"
+	k8cmd_plain="kubecolor --plain"
+fi
 # Set Variable
 NAME_FIELD=1
 GET_NS=0
@@ -81,7 +88,8 @@ while true; do
 		-A)
 			ALL_NS=true
 			PARAMETERS="$PARAMETERS -A"
-			POSITION=$($k8cmd get $TYPE $PARAMETERS | awk 'BEGIN{NS=0;NAME=0} NR==1{ for (i=1; i<=NF; i++) { if ($i == "NAME") NAME=i ; if ($i == "NAMESPACE") NS=i }} END {print NAME" "NS}')
+			# gsub(/\x1B\[[0-9;]*[mK]/, "") is here to remove color ANSI code when using with kubecolor
+			POSITION=$($k8cmd get $TYPE $PARAMETERS | awk 'BEGIN{NS=0;NAME=0} NR==1{ gsub(/\x1B\[[0-9;]*[mK]/, ""); for (i=1; i<=NF; i++) { if ($i == "NAME") NAME=i ; if ($i == "NAMESPACE") NS=i }} END {print NAME" "NS}')
 			NAME_FIELD=$(echo $POSITION | awk '{print $1}')
 			GET_NS=$(echo $POSITION | awk '{print $2}')
 			PREVIEW_PARAMETERS="$PREVIEW_PARAMETERS -n {$GET_NS}"
@@ -101,8 +109,9 @@ while true; do
 		-o)
 			shift
 			PARAMETERS="$PARAMETERS -o $1"
-			if [ "$1" == wide ]; then
-				POSITION=$($k8cmd get $TYPE $PARAMETERS | awk 'BEGIN{NS=0;NAME=0} NR==1{ for (i=1; i<=NF; i++) { if ($i == "NAME") NAME=i ; if ($i == "NAMESPACE") NS=i }} END {print NAME" "NS}')
+			if [ "$1" == wide ]; then 
+				# gsub(/\x1B\[[0-9;]*[mK]/, "") is here to remove color ANSI code when using with kubecolor
+				POSITION=$($k8cmd get $TYPE $PARAMETERS | awk 'BEGIN{NS=0;NAME=0} NR==1{  gsub(/\x1B\[[0-9;]*[mK]/, ""); for (i=1; i<=NF; i++) { if ($i == "NAME") NAME=i ; if ($i == "NAMESPACE") NS=i }} END {print NAME" "NS}')
 				NAME_FIELD=$(echo $POSITION | awk '{print $1}')
 				GET_NS=$(echo $POSITION | awk '{print $2}')
 			fi
@@ -140,9 +149,11 @@ done
 ## FZF ##
 #########
 
+[ -z "$k8cmd_plain" ] && k8cmd_plain=$k8cmd
+
 export FZF_DEFAULT_OPTS='--color=bg+:#293739,bg:#1B1D1E,border:#808080,spinner:#E6DB74,hl:#87afaf,fg:#F8F8F2,header:#5fd7ff,info:#A6E22E,pointer:#A6E22E,marker:#F92672,fg+:#F8F8F2,prompt:#F92672,hl+:#F92672,label:#87ff00'
 export FZF_DEFAULT_COMMAND="$k8cmd get $TYPE $PARAMETERS"
-PRINT_YAML="[[ -f /tmp/yq ]] && YQ=\$(cat /tmp/yq); $k8cmd get $([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE) {$NAME_FIELD} -o yaml $PREVIEW_PARAMETERS"
+PRINT_YAML="[[ -f /tmp/yq ]] && YQ=\$(cat /tmp/yq); $k8cmd_plain get $([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE) {$NAME_FIELD} -o yaml $PREVIEW_PARAMETERS"
 PREVIEW_LABEL_YAML="[[ -f /tmp/yq ]] && echo [ YAML - yq \$(cat /tmp/yq) ] || echo [ YAML - yq .]"
 PRINT_EVENTS="$k8cmd events $PREVIEW_PARAMETERS -w --for=$([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE/){$NAME_FIELD}"
 PRINT_DESCRIBE="$k8cmd describe $PREVIEW_PARAMETERS $(echo $TYPE/){$NAME_FIELD}"
@@ -237,7 +248,7 @@ fzf -m -e --track --ansi +s $FZF_EXTRA_OPTIONS \
 	--bind="ctrl-h:change-preview(print \"$HELP\")+change-preview-window(right,<80(up)|hidden)+change-preview-label([ Help ])" \
 	--bind="ctrl-y:change-preview($PRINT_YAML | yq -C \${YQ:-.})+change-preview-window(right,wrap,<80(up,wrap)|up,wrap|hidden)+transform-preview-label:$PREVIEW_LABEL_YAML" \
 	--bind="ctrl-d:change-preview($PRINT_DESCRIBE)+change-preview-window(right,wrap,<80(up,wrap)|up,wrap|hidden)+transform-preview-label:[ Description ]" \
-	--bind="ctrl-v:change-preview($PRINT_EVENTS)+change-preview-window(up,follow|up,80%,border-bottom,follow|hidden)+change-preview-label([ Events ])" \
+	--bind="ctrl-v:change-preview($PRINT_EVENTS)+change-preview-window(up,follow,wrap|up,80%,border-bottom,follow,wrap|hidden)+change-preview-label([ Events ])" \
 	--bind="ctrl-l:change-preview($PRINT_LOGS --tail=5000)+change-preview-window(up,follow|up,80%,border-bottom,follow|hidden)+change-preview-label([ Logs ])" \
 	--bind="ctrl-x:execute($EXEC_IN_POD)" \
 	--bind="alt-l:toggle-preview-wrap" \
