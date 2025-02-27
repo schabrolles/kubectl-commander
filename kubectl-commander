@@ -249,7 +249,7 @@ fzf -m -e --track --ansi +s $FZF_EXTRA_OPTIONS \
 	--bind="ctrl-y:change-preview($PRINT_YAML | yq -C \${YQ:-.})+change-preview-window(right,wrap,<80(up,wrap)|up,wrap|hidden)+transform-preview-label:$PREVIEW_LABEL_YAML" \
 	--bind="ctrl-d:change-preview($PRINT_DESCRIBE)+change-preview-window(right,wrap,<80(up,wrap)|up,wrap|hidden)+transform-preview-label:[ Description ]" \
 	--bind="ctrl-v:change-preview($PRINT_EVENTS)+change-preview-window(up,follow,wrap|up,80%,border-bottom,follow,wrap|hidden)+change-preview-label([ Events ])" \
-	--bind="ctrl-l:change-preview($PRINT_LOGS --tail=5000)+change-preview-window(up,follow|up,80%,border-bottom,follow|hidden)+change-preview-label([ Logs ])" \
+	--bind="ctrl-l:change-preview($PRINT_LOGS --tail=5000)+change-preview-window(up,follow,wrap|up,80%,border-bottom,follow,wrap|hidden)+change-preview-label([ Logs ])" \
 	--bind="ctrl-x:execute($EXEC_IN_POD)" \
 	--bind="alt-l:toggle-preview-wrap" \
 	--bind="alt-d:execute(echo; for item in {+$NAME_FIELD}; do echo \$item; done; echo \"\n * /!\ delete selected items (y/N) ? *\"; read ANSW; [[ \$ANSW == \"y\" ]] && $DELETE)" \
