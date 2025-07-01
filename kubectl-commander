@@ -1,7 +1,7 @@
 #!/bin/bash
 #set -x
 k8cmd=kubectl
-VERSION=v0.4.2
+VERSION=v0.4.3
 
 # Define usage function
 usage() {
@@ -25,6 +25,9 @@ OPTIONS:
 
 	-q, --query <fzf query>
 		start fzf with this query
+
+	-s, --sort <field>
+		sort by <field> (date, creation, age, creationTimestamp, creationDate)
 "
     exit 1
 }
