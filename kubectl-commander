@@ -75,7 +75,7 @@ rm -f /tmp/yq
 #####################
 ## Parsing options ##
 #####################
-args=$(getopt ADhn:y:e:o:q: $*)
+args=$(getopt ADhn:y:e:o:q:s: $*)
 [ $? -eq 0 ] || { 
     echo "Incorrect options provided"
     exit 1
@@ -115,6 +115,20 @@ while true; do
 				NAME_FIELD=$(echo $POSITION | awk '{print $1}')
 				GET_NS=$(echo $POSITION | awk '{print $2}')
 			fi
+			shift
+			;;
+
+		-s | --sort)
+			shift
+			PARAMETERS="$PARAMETERS --sort-by=$1"
+			case $1 in
+				date|creation|age|creationTimestamp|creationDate)
+					PARAMETERS="$PARAMETERS --sort-by=.metadata.creationTimestamp"
+					;;
+				*)
+					PARAMETERS="$PARAMETERS --sort-by=$1"
+					;;
+			esac
 			shift
 			;;
 
@@ -261,4 +275,4 @@ fzf -m -e --track --ansi +s $FZF_EXTRA_OPTIONS \
 	--bind="ctrl-r:reload%\$(echo \$FZF_DEFAULT_COMMAND)%+refresh-preview" \
 	--bind="load:reload-sync%\$(echo \$FZF_DEFAULT_COMMAND); sleep 2%" \
 	--bind="start:unbind(load)" \
-	--bind="Enter:execute([[ \"\$FZF_PREVIEW_LABEL\" == *Logs* ]] && $PRINT_LOGS >/dev/tty; [[ \"\$FZF_PREVIEW_LABEL\" == *Events* ]] && $PRINT_EVENTS >/dev/tty; [[ \"\$FZF_PREVIEW_LABEL\" == *YAML* ]] && echo \"\nenter your yq query:\" && read YQ && echo \$YQ > /tmp/yq )+refresh-preview+transform-preview-label:if [[ \"\$FZF_PREVIEW_LABEL\" == *YAML* ]]; then echo [ YAML - yq \$(cat /tmp/yq) ]; else echo \$FZF_PREVIEW_LABEL ; fi"
+	--bind="Enter:execute([[ \"\$FZF_PREVIEW_LABEL\" == *Logs* ]] && $PRINT_LOGS >/dev/tty; [[ \"\$FZF_PREVIEW_LABEL\" == *Events* ]] && $PRINT_EVENTS >/dev/tty; [[ \"\$FZF_PREVIEW_LABEL\" == *YAML* ]] && echo \"\nenter your yq query:\" && read YQ && echo \$YQ > /tmp/yq )+refresh-preview+transform-preview-label:if [[ \"\$FZF_PREVIEW_LABEL\" == *YAML* ]]; then echo [ YAML - yq \$(cat /tmp/yq) ]; else echo \$FZF_PREVIEW_LABEL ; fi" \
