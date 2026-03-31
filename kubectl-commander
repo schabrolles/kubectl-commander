@@ -5,7 +5,7 @@ VERSION=v0.4.3
 
 # Define usage function
 usage() {
-    echo "
+  echo "
 List all kube objects 
 
 Usage: $k8cmd fzf <type> [OPTIONS]
@@ -28,8 +28,8 @@ OPTIONS:
 
 	-s, --sort <field>
 		sort by <field> (date, creation, age, creationTimestamp, creationDate)
-"
-    exit 1
+	"
+  exit 0
 }
 
 # detect if current cluster is openshift
@@ -54,7 +54,7 @@ PREVIEW=None
 # if first arg is empty or start with "-" (like an aoption).
 # This mean it is not an kube object type (like pod,pvc,)
 # then start fzf to select the right type
-if [[ -z "$1" || $1 == -* ]]; then
+if [[ -z "$1" || ($1 == -* && $1 != -h && $1 != --help) ]]; then
   export TYPE=$($k8cmd api-resources -o name | fzf -e --ansi --reverse +s -m \
 	  --header=K8s_OBJ_TYPE \
 		--height 15 \
@@ -145,6 +145,7 @@ while true; do
 		-h|--help)
 			shift
 			usage
+			break
 			;;
 
 		-q|--query)
