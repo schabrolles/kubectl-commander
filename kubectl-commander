@@ -175,7 +175,7 @@ PRINT_YAML="[[ -f /tmp/yq ]] && YQ=\$(cat /tmp/yq); $k8cmd_plain get $([ "$MULTI
 PREVIEW_LABEL_YAML="[[ -f /tmp/yq ]] && echo [ YAML - yq \$(cat /tmp/yq) ] || echo [ YAML - yq .]"
 PRINT_EVENTS="$k8cmd events $PREVIEW_PARAMETERS -w --for=$([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE/){$NAME_FIELD}"
 PRINT_DESCRIBE="$k8cmd describe $PREVIEW_PARAMETERS $(echo $TYPE/){$NAME_FIELD}"
-PRINT_LOGS="$k8cmd logs -f {$NAME_FIELD} $PREVIEW_PARAMETERS --all-containers"
+PRINT_LOGS="$k8cmd logs -f ${TYPE}/{$NAME_FIELD} $PREVIEW_PARAMETERS --all-containers"
 #PRINT_LOGS="$k8cmd stern --color always $PREVIEW_PARAMETERS {$NAME_FIELD}"
 EDIT="$k8cmd edit $([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE) $PREVIEW_PARAMETERS {$NAME_FIELD} >/dev/tty"
 DELETE="$k8cmd delete $PREVIEW_PARAMETERS $([ "$MULTI_TYPE" -eq 0 ] && echo $TYPE) {+$NAME_FIELD} > /dev/tty"
